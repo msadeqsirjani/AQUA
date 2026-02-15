@@ -85,8 +85,27 @@ class EQATTrainer:
             # 5. Backward
             self.opt_w.zero_grad()
             self.opt_bw.zero_grad()
+
+            # Check for NaN in loss before backward
+            if not torch.isfinite(loss):
+                print(f"Warning: NaN/Inf in loss at epoch {epoch}, skipping batch")
+                continue
+
             loss.backward()
+
+            # Clip gradients more aggressively
             nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+
+            # Check for NaN in gradients
+            has_nan = False
+            for param in self.model.parameters():
+                if param.grad is not None and not torch.isfinite(param.grad).all():
+                    has_nan = True
+                    break
+
+            if has_nan:
+                print(f"Warning: NaN in gradients at epoch {epoch}, skipping batch")
+                continue
 
             # 6. Weight update (always)
             self.opt_w.step()

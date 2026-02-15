@@ -29,11 +29,11 @@ from EQAT.core.trainer  import EQATTrainer
 EPOCHS         = 100
 BATCH_SIZE     = 64
 LR_WEIGHTS     = 1.0          # Adadelta (paper: lr=1.0 for MNIST)
-LR_BITWIDTH    = 0.0001       # Adam for q̃  (lower to prevent collapse)
+LR_BITWIDTH    = 0.001        # Adam for q̃ (low to prevent collapse)
 ALPHA          = 0.95         # KL weight
-BETA           = 0.005        # max energy weight (reduced to prevent collapse)
-WARMUP         = 30           # epochs to ramp β from 0 → BETA (longer warmup)
-FREEZE_BW      = 25           # freeze bit-widths until model converges (longer freeze)
+BETA           = 0.01         # max energy weight (ramps from 0.001→0.01 via warmup)
+WARMUP         = 10           # epochs to ramp β from 0 → BETA
+FREEZE_BW      = 20           # freeze bit-widths until model converges
 Q_MIN, Q_MAX   = 2.0, 8.0
 SEED           = 42
 SAVE_DIR       = 'results/EQAT/MNIST'
