@@ -39,6 +39,10 @@ class EQATLoss(nn.Module):
         Returns:
             total loss, dict of components
         """
+        # Clamp logits for numerical stability
+        y_quant = torch.clamp(y_quant, min=-100, max=100)
+        y_full = torch.clamp(y_full, min=-100, max=100)
+
         l_ce = F.cross_entropy(y_quant, y_true)
 
         # KL(y_quant ‖ y_full) — Eq. 9: F.kl_div(log_Q, P) = KL(P‖Q)
@@ -47,12 +51,15 @@ class EQATLoss(nn.Module):
         p_quant    = F.softmax(y_quant, dim=1)
         l_kl       = F.kl_div(log_p_full, p_quant, reduction='batchmean')
 
+        # Clamp KL divergence to prevent instability
+        l_kl = torch.clamp(l_kl, min=0, max=10.0)
+
         beta  = self.beta_now(epoch)
         total = l_ce + self.alpha * l_kl + beta * e_norm
 
         return total, {
             'L_CE'    : l_ce.item(),
             'L_KL'    : l_kl.item(),
-            'E_norm'  : e_norm.item(),
+            'E_norm'  : e_norm.item() if torch.isfinite(e_norm).all() else 0.0,
             'beta'    : beta,
         }
