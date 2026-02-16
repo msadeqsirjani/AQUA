@@ -1,11 +1,13 @@
 """
 Unified training script.
 
+Results are saved to: results/<mode>_<dataset>_<dtype>/
+
 Usage:
   python -m scripts.train --dataset mnist --model simplecnn5 --mode baseline
   python -m scripts.train --dataset cifar10 --model simplecnn5 --mode baseline
   python -m scripts.train --dataset cifar100 --model resnet18 --mode baseline
-  python -m scripts.train --dataset cifar10 --model resnet18 --mode baseline --epochs 200 --lr 0.01
+  python -m scripts.train --dataset cifar10 --model resnet18 --mode baseline --dtype int8
 """
 
 import argparse
@@ -39,9 +41,18 @@ def parse_args():
     p.add_argument('--lr',        type=float, default=None, help='default: auto per dataset')
     p.add_argument('--optimizer', default=None, choices=['adam', 'adadelta'], help='default: auto per dataset')
     p.add_argument('--seed',      type=int,   default=42)
-    p.add_argument('--bitwidth',  type=float, default=8.0)
-    p.add_argument('--save-dir',  default=None, help='default: results/<mode>/<dataset>')
+    p.add_argument('--dtype',     default='fp32',
+                   choices=['fp32', 'fp16', 'int8', 'int4', 'int2', 'int1'],
+                   help='precision type (default: fp32)')
+    p.add_argument('--save-dir',  default=None, help='default: results/<mode>_<dataset>_<dtype>')
     return p.parse_args()
+
+
+# dtype → bitwidth for the energy model
+_DTYPE_TO_BITS = {
+    'fp32': 32, 'fp16': 16,
+    'int8': 8,  'int4': 4,  'int2': 2, 'int1': 1,
+}
 
 
 def main():
@@ -52,7 +63,9 @@ def main():
     batch_size = args.batch_size or defaults['batch_size']
     lr         = args.lr         or defaults['lr']
     opt_name   = args.optimizer  or defaults['optimizer']
-    save_dir   = args.save_dir   or f'results/{args.mode}/{args.dataset}'
+    dtype      = args.dtype
+    bitwidth   = float(_DTYPE_TO_BITS[dtype])
+    save_dir   = args.save_dir   or f'results/{args.mode}_{args.dataset}_{dtype}'
 
     torch.manual_seed(args.seed)
     os.makedirs(save_dir, exist_ok=True)
@@ -66,7 +79,7 @@ def main():
 
     # ── Model ─────────────────────────────────────────────────────────────
     model = get_model(args.model, in_channels, num_classes).to(device)
-    energy_model = get_energy_model(model, args.model, in_channels, args.bitwidth)
+    energy_model = get_energy_model(model, args.model, in_channels, bitwidth)
 
     # ── Optimizer & Scheduler ─────────────────────────────────────────────
     criterion = nn.CrossEntropyLoss()
@@ -80,12 +93,11 @@ def main():
         scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
 
     # ── Training loop ─────────────────────────────────────────────────────
-    bitwidth_str = f'{int(args.bitwidth)}-bit' if args.bitwidth == 8 else 'FP32'
     print(f'{args.mode} {args.dataset} ({args.model})  |  device={device}  |  '
-          f'seed={args.seed}  |  {bitwidth_str}')
+          f'seed={args.seed}  |  {dtype}  |  save={save_dir}')
 
     has_lr_col = scheduler is not None
-    hdr = f"{'Ep':>4} | {'TrainAcc%':>10} | {'TestAcc%':>9} | {'Loss':>8} | {'E(norm)':>8} | {'Bits':>5}"
+    hdr = f"{'Ep':>4} | {'TrainAcc%':>10} | {'TestAcc%':>9} | {'Loss':>8} | {'E(abs)':>12} | {'E(norm)':>8} | {'Bits':>5}"
     if has_lr_col:
         hdr += f" | {'LR':>8}"
     print(hdr)
@@ -97,6 +109,7 @@ def main():
     for epoch in range(1, args.epochs + 1):
         train_loss, train_acc = train_epoch(model, device, train_ld, optimizer, criterion, epoch)
         test_acc = evaluate(model, device, test_ld)
+        energy_abs  = energy_model.compute_energy()
         energy_norm = energy_model.normalized()
 
         row = {
@@ -104,8 +117,9 @@ def main():
             'train_loss': train_loss,
             'train_acc': train_acc,
             'test_acc': test_acc,
+            'energy_absolute': energy_abs,
             'energy_normalized': energy_norm,
-            'bitwidth': args.bitwidth,
+            'bitwidth': bitwidth,
         }
         if has_lr_col:
             row['lr'] = optimizer.param_groups[0]['lr']
@@ -117,7 +131,7 @@ def main():
 
         if epoch % 5 == 0 or epoch == 1:
             line = (f"{epoch:>4} | {train_acc:>10.2f} | {test_acc:>9.2f} | "
-                    f"{train_loss:>8.4f} | {energy_norm:>8.2f} | {int(args.bitwidth):>5}")
+                    f"{train_loss:>8.4f} | {energy_abs:>12,.0f} | {energy_norm:>8.2f} | {int(bitwidth):>5}")
             if has_lr_col:
                 line += f" | {optimizer.param_groups[0]['lr']:>8.6f}"
             print(line)
@@ -131,7 +145,7 @@ def main():
         'results': results,
         'best_accuracy': best_acc,
         'energy_normalized': energy_norm,
-        'bitwidth': args.bitwidth,
+        'bitwidth': bitwidth,
         'energy_stats': energy_model.get_stats(),
     }, f'{save_dir}/final.pt')
 
@@ -143,8 +157,8 @@ def main():
         'final_train_accuracy': float(results[-1]['train_acc']),
         'energy_normalized': float(energy_norm),
         'energy_absolute': float(energy_model.compute_energy()),
-        'bitwidth_weights': float(args.bitwidth),
-        'bitwidth_activations': float(args.bitwidth),
+        'bitwidth_weights': float(bitwidth),
+        'bitwidth_activations': float(bitwidth),
         'hyperparameters': {
             'epochs': args.epochs,
             'batch_size': batch_size,
@@ -167,7 +181,7 @@ def main():
     print(f'Best test accuracy : {best_acc:.2f}%')
     print(f'Energy (normalized): {energy_norm:.2f}')
     print(f'Energy (absolute)  : {energy_model.compute_energy():,.0f}')
-    print(f'Bit-width          : {int(args.bitwidth)} bits')
+    print(f'Bit-width          : {int(bitwidth)} bits')
     print(f'\nResults saved to {save_dir}/')
 
 
