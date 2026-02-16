@@ -1,0 +1,26 @@
+{
+  "method": "baseline",
+  "dataset": "mnist",
+  "model": "simplecnn5",
+  "best_test_accuracy": 98.5,
+  "final_train_accuracy": 95.00333333333333,
+  "energy_normalized": 1.0,
+  "energy_absolute": 1209014912.0,
+  "bitwidth_weights": 8.0,
+  "bitwidth_activations": 8.0,
+  "hyperparameters": {
+    "epochs": 1,
+    "batch_size": 64,
+    "learning_rate": 1.0,
+    "optimizer": "adadelta",
+    "lr_schedule": "none",
+    "seed": 42
+  },
+  "energy_stats": {
+    "energy_normalized": 1.0,
+    "energy_absolute": 1209014912.0,
+    "bitwidth": 8.0,
+    "avg_bitwidth": 8.0,
+    "num_layers": 5
+  }
+}

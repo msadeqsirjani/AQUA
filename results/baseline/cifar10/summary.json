@@ -1,0 +1,26 @@
+{
+  "method": "baseline",
+  "dataset": "cifar10",
+  "model": "simplecnn5",
+  "best_test_accuracy": 61.48,
+  "final_train_accuracy": 46.022,
+  "energy_normalized": 1.0,
+  "energy_absolute": 1806554752.0,
+  "bitwidth_weights": 8.0,
+  "bitwidth_activations": 8.0,
+  "hyperparameters": {
+    "epochs": 1,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "optimizer": "adam",
+    "lr_schedule": "CosineAnnealing",
+    "seed": 42
+  },
+  "energy_stats": {
+    "energy_normalized": 1.0,
+    "energy_absolute": 1806554752.0,
+    "bitwidth": 8.0,
+    "avg_bitwidth": 8.0,
+    "num_layers": 5
+  }
+}

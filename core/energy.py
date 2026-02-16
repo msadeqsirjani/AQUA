@@ -1,12 +1,12 @@
 """
-Baseline Energy Model — Fixed bit-width energy computation.
+Energy Model — Fixed bit-width energy computation.
 
 E_layer = E_comp + E_data
 E_comp  = MACs × E_MAC × q²        [quadratic in bits]
 E_data  = DataSize × E_access × q  [linear in bits]
 
 For Baseline, q is fixed (either 32 for FP32 or 8 for 8-bit uniform quantization).
-Energy is normalized by the 8-bit baseline for comparison with EQAT/AQUA.
+Energy is normalized by the 8-bit baseline for comparison.
 """
 
 import torch

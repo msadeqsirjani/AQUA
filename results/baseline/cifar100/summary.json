@@ -1,0 +1,26 @@
+{
+  "method": "baseline",
+  "dataset": "cifar100",
+  "model": "resnet18",
+  "best_test_accuracy": 18.93,
+  "final_train_accuracy": 12.594,
+  "energy_normalized": 1.0,
+  "energy_absolute": 20474339584.0,
+  "bitwidth_weights": 8.0,
+  "bitwidth_activations": 8.0,
+  "hyperparameters": {
+    "epochs": 1,
+    "batch_size": 128,
+    "learning_rate": 0.001,
+    "optimizer": "adam",
+    "lr_schedule": "CosineAnnealing",
+    "seed": 42
+  },
+  "energy_stats": {
+    "energy_normalized": 1.0,
+    "energy_absolute": 20474339584.0,
+    "bitwidth": 8.0,
+    "avg_bitwidth": 8.0,
+    "num_layers": 21
+  }
+}

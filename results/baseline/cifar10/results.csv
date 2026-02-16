@@ -1,0 +1,2 @@
+epoch,train_loss,train_acc,test_acc,energy_normalized,bitwidth,lr
+1,1.4747196836849612,46.022,61.48,1.0,8.0,0.001
