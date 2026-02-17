@@ -1,7 +1,7 @@
 """
 Unified training script.
 
-Results are saved to: results/<mode>_<dataset>_<dtype>/
+Results are saved to: results/<mode>_<model>_<dataset>_<dtype>/
 
 Usage:
   python -m scripts.train --dataset mnist --model simplecnn5 --mode baseline
@@ -44,7 +44,7 @@ def parse_args():
     p.add_argument('--dtype',     default='fp32',
                    choices=['fp32', 'fp16', 'int8', 'int4', 'int2', 'int1'],
                    help='precision type (default: fp32)')
-    p.add_argument('--save-dir',  default=None, help='default: results/<mode>_<dataset>_<dtype>')
+    p.add_argument('--save-dir',  default=None, help='default: results/<mode>_<model>_<dataset>_<dtype>')
     return p.parse_args()
 
 
@@ -65,7 +65,7 @@ def main():
     opt_name   = args.optimizer  or defaults['optimizer']
     dtype      = args.dtype
     bitwidth   = float(_DTYPE_TO_BITS[dtype])
-    save_dir   = args.save_dir   or f'results/{args.mode}_{args.dataset}_{dtype}'
+    save_dir   = args.save_dir   or f'results/{args.mode}_{args.model}_{args.dataset}_{dtype}'
 
     torch.manual_seed(args.seed)
     os.makedirs(save_dir, exist_ok=True)
