@@ -1,0 +1,18 @@
+# TINY-IMAGENET / VIT-TINY / 8-bit
+dataset:
+  name: tiny_imagenet
+  data_root: ./data
+  batch_size: 128
+  num_workers: 4
+
+model:
+  name: vit_tiny
+
+training:
+  fp32_epochs: 100
+  fp32_lr: 0.001
+  epochs: 30
+  lr: 5e-05
+
+quantization:
+  bits: 8

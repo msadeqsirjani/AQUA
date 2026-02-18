@@ -1,8 +1,8 @@
 """
-ResNet-18 for CIFAR-10.
+ResNet for CIFAR-10.
 
 CIFAR variant: 3x3 conv stem with stride=1, no maxpool.
-This reaches ~93% FP32 accuracy on CIFAR-10.
+Provides ResNet18 (~93% FP32) and ResNet34 factories.
 """
 
 import torch.nn as nn
@@ -73,3 +73,7 @@ class ResNet(nn.Module):
 
 def ResNet18(num_classes=10):
     return ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+
+
+def ResNet34(num_classes=10):
+    return ResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
