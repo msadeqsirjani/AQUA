@@ -34,7 +34,7 @@ from utils import (
 )
 from utils.args import add_common_args, get_result_dir
 from utils.config import load_config
-from utils.console import banner, section, print_config, metric, info, success, file_saved
+from utils.console import console, banner, section, print_config, metric, info, success, file_saved
 from core.hessian_sensitivity import compute_hessian_trace
 from core.edge_mpq.ilp_bit_assignment import solve_bit_assignment, _compute_bops
 from core.edge_mpq.edge_mpq_model import apply_mixed_precision, get_layer_macs, MPQConv2d, MPQLinear
@@ -193,9 +193,7 @@ def main():
         metric(name, f"{trace:.4f}")
 
     # ===== Step 3: ILP bit assignment =====
-    print("\n" + "=" * 60)
-    print("Step 3: ILP Bit-Width Assignment (50% BOPs budget)")
-    print("=" * 60)
+    section("ILP Bit-Width Assignment (50% BOPs budget)", step=3)
 
     # Get per-layer MACs
     macs_per_layer = get_layer_macs(model, input_h=32, input_w=32)
@@ -208,14 +206,15 @@ def main():
 
     # Print assignment
     layer_names = list(sensitivities.keys())
-    print(f"\n  Per-layer bit-width assignment:")
-    print(f"  {'Layer':<30s} {'Bits':>5s} {'Sensitivity':>15s} {'MACs':>15s}")
-    print(f"  {'-'*30} {'-'*5} {'-'*15} {'-'*15}")
+    console.print()
+    info("Per-layer bit-width assignment:")
+    console.print(f"  [dim]{'Layer':<30s} {'Bits':>5s} {'Sensitivity':>15s} {'MACs':>15s}[/dim]")
+    console.print(f"  [dim]{'-'*30} {'-'*5} {'-'*15} {'-'*15}[/dim]")
     for name in layer_names:
         bits = bit_assignment.get(name, 8)
         sens = sensitivities[name]
         macs = macs_per_layer.get(name, 0)
-        print(f"  {name:<30s} {bits:>5d} {sens:>15.4f} {macs:>15,d}")
+        console.print(f"  {name:<30s} {bits:>5d} {sens:>15.4f} {macs:>15,d}")
 
     # BOPs analysis
     max_bits = 16

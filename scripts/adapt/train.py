@@ -221,7 +221,7 @@ def finetune_uniform(model, train_loader, val_loader, device, epochs=30,
             for m in model.modules():
                 if isinstance(m, JacobFakeQuantize):
                     m.disable_observer()
-            print(f"    [{label}] Observers disabled")
+            info(f"[{label}] Observers disabled")
 
         model.train()
         total_loss, correct, total = 0.0, 0, 0
@@ -410,18 +410,17 @@ def main():
     add_common_args(parser)
     args = parser.parse_args()
     cfg = load_config(args.config, args)
+    banner("AQUA — AdaPT Training", f"Config: {args.config}")
 
     device = setup_device()
+    print_config(cfg)
     result_dir = get_result_dir(cfg.dataset, cfg.model, "adapt")
     train_loader, val_loader = get_dataloaders(
         cfg.dataset, batch_size=cfg.batch_size,
         data_root=cfg.data_root,
     )
 
-    # ===== Step 1: Load pretrained FP32 =====
-    print("\n" + "=" * 60)
-    print(f"Step 1: Load Pretrained FP32 {cfg.model} ({cfg.dataset})")
-    print("=" * 60)
+    section(f"Load Pretrained FP32 {cfg.model} ({cfg.dataset})", step=1)
 
     model, fp32_acc = load_fp32_model(
         cfg.model, device, val_loader,
@@ -437,8 +436,8 @@ def main():
 
     n_aconv = sum(1 for m in adapt_model.modules() if isinstance(m, AdaPTConv2d))
     n_alin = sum(1 for m in adapt_model.modules() if isinstance(m, AdaPTLinear))
-    print(f"  AdaPTConv2d layers: {n_aconv}")
-    print(f"  AdaPTLinear layers: {n_alin}")
+    metric("AdaPTConv2d layers", n_aconv)
+    metric("AdaPTLinear layers", n_alin)
 
     # Create precision controller
     controller = AdaPTPrecisionController(
@@ -448,10 +447,10 @@ def main():
         check_interval=5,
         min_bits=2,
     )
-    print(f"  Controller: SNR>={controller.snr_threshold}dB, "
-          f"grad>={controller.grad_threshold}, "
-          f"check every {controller.check_interval} epochs")
-    print(f"  Tracked layers: {len(controller.layer_info)}")
+    info(f"Controller: SNR>={controller.snr_threshold}dB, "
+         f"grad>={controller.grad_threshold}, "
+         f"check every {controller.check_interval} epochs")
+    metric("Tracked layers", len(controller.layer_info))
 
     # ===== Step 3: AdaPT training =====
     section("AdaPT Training (30 epochs)", step=3)
