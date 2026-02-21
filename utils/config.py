@@ -35,6 +35,10 @@ _DEFAULTS = {
     "epochs": 30,
     "lr": 1e-4,
     "fp32_lr": 0.1,
+    "fp32_optimizer": "sgd",
+    "fp32_weight_decay": 5e-4,
+    "fp32_warmup_epochs": 0,
+    "fp32_label_smoothing": 0.0,
     "bits": 4,
 }
 

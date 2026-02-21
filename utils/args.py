@@ -31,6 +31,7 @@ def add_common_args(parser, default_epochs=None, default_lr=None,
         --epochs       Number of fine-tuning epochs.
         --lr           Base learning rate.
         --bits         Default quantization bit-width.
+        --run-tag      Optional tag for ablation runs.
 
     All flags default to ``None`` so that the YAML config layer takes
     precedence.  If explicit defaults are needed (e.g. for pretrain
@@ -69,18 +70,30 @@ def add_common_args(parser, default_epochs=None, default_lr=None,
         "--bits", type=int, default=None,
         help="Quantization bit-width (default: from config)",
     )
+    parser.add_argument(
+        "--run-tag", type=str, default=None,
+        help="Tag for this run (e.g. 'beta0.03'). Results saved to a sub-folder.",
+    )
     return parser
 
 
-def get_result_dir(dataset_name, model_name, algorithm_name):
-    """Return ``results/{dataset}/{model}/{algo}/`` and create it.
+def get_result_dir(dataset_name, model_name, algorithm_name, run_tag=None):
+    """Return ``results/{dataset}/{model}/{algo}[/{tag}]/`` and create it.
+
+    When *run_tag* is given the results go into a sub-folder, allowing
+    multiple ablation runs to coexist.
 
     Example::
 
         get_result_dir("cifar100", "resnet18", "haq")
         # -> "results/cifar100/resnet18/haq"
+
+        get_result_dir("cifar10", "resnet18", "aqua", run_tag="beta0.03")
+        # -> "results/cifar10/resnet18/aqua/beta0.03"
     """
     path = os.path.join("results", dataset_name, model_name, algorithm_name)
+    if run_tag:
+        path = os.path.join(path, run_tag)
     os.makedirs(path, exist_ok=True)
     return path
 

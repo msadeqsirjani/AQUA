@@ -104,13 +104,36 @@ def main():
 
     model = get_model(cfg.model, num_classes=cfg.num_classes,
                       img_size=cfg.img_size).to(device)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(
-        model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4,
+
+    label_smoothing = getattr(cfg, "fp32_label_smoothing", 0.0)
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+
+    optim_name = getattr(cfg, "fp32_optimizer", "sgd").lower()
+    wd = getattr(cfg, "fp32_weight_decay", 5e-4)
+    warmup_epochs = getattr(cfg, "fp32_warmup_epochs", 0)
+
+    if optim_name == "adamw":
+        optimizer = torch.optim.AdamW(
+            model.parameters(), lr=lr, weight_decay=wd, betas=(0.9, 0.999),
+        )
+    else:
+        optimizer = torch.optim.SGD(
+            model.parameters(), lr=lr, momentum=0.9, weight_decay=wd,
+        )
+
+    cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=epochs - warmup_epochs,
     )
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, T_max=epochs,
-    )
+    if warmup_epochs > 0:
+        warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
+            optimizer, start_factor=1e-3, total_iters=warmup_epochs,
+        )
+        scheduler = torch.optim.lr_scheduler.SequentialLR(
+            optimizer, schedulers=[warmup_scheduler, cosine_scheduler],
+            milestones=[warmup_epochs],
+        )
+    else:
+        scheduler = cosine_scheduler
 
     best_acc = 0.0
     with training_progress(epochs) as progress:
