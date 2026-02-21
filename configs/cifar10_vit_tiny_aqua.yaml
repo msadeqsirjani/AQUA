@@ -1,0 +1,33 @@
+# CIFAR10 / VIT_TINY / AQUA v2 (outlier-aware distribution-guided mixed-precision)
+dataset:
+  name: cifar10
+  data_root: ./data
+  batch_size: 128
+  num_workers: 2
+
+model:
+  name: vit_tiny
+
+training:
+  fp32_epochs: 200
+  fp32_lr: 0.0005
+  fp32_optimizer: adamw
+  fp32_weight_decay: 0.05
+  fp32_warmup_epochs: 10
+  epochs: 30
+  lr: 0.0001
+
+quantization:
+  bits: 4
+
+aqua:
+  allowed_dtypes: [fp16, int8, fp8, int4, fp4, int2, int1]
+  blocked_dtypes: []
+  target_avg_bits: 4
+  outlier_pct: 0.01
+  finetune_epochs: 30
+  finetune_lr: 0.0001
+  kd_temperature: 4.0
+  alpha: 0.5
+  hessian_samples: 100
+  fisher_batches: 5
