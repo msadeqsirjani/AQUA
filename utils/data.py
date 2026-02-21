@@ -119,6 +119,7 @@ def _get_cifar_loaders(dataset_cls, batch_size, num_workers, data_root, info):
         T.RandomHorizontalFlip(),
         T.ToTensor(),
         T.Normalize(mean, std),
+        T.RandomErasing(p=0.5, scale=(0.02, 0.25)),
     ])
     test_transform = T.Compose([
         T.ToTensor(),
@@ -208,8 +209,11 @@ def _get_tiny_imagenet_loaders(batch_size, num_workers, data_root):
     train_transform = T.Compose([
         T.RandomCrop(img_size, padding=8),
         T.RandomHorizontalFlip(),
+        T.RandomRotation(15),
+        T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4),
         T.ToTensor(),
         T.Normalize(mean, std),
+        T.RandomErasing(p=0.25, scale=(0.02, 0.2)),
     ])
     test_transform = T.Compose([
         T.Resize(img_size),
