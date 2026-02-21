@@ -1,5 +1,5 @@
 """
-Weight distribution analysis for AQUA v2.
+Weight distribution analysis for AQUA.
 
 Characterizes per-layer weight distributions using statistical moments
 (kurtosis, skewness) and derives format recommendations:

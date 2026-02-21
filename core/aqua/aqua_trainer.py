@@ -1,5 +1,5 @@
 """
-AQUA v2 QAT Trainer -- simple quantization-aware fine-tuning with knowledge distillation.
+AQUA QAT Trainer -- simple quantization-aware fine-tuning with knowledge distillation.
 
 No learned dtype selection, no energy penalty, no entropy penalty.
 Dtype assignment is already fixed analytically before training starts.

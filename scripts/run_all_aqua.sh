@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Run AQUA v2 for all (dataset, model, bit-target) combinations.
+# Run AQUA for all (dataset, model, bit-target) combinations.
 #
 # Usage:
 #   bash scripts/run_all_aqua.sh              # run all 54 experiments sequentially
@@ -28,7 +28,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 NUM_GPUS=$(nvidia-smi -L 2>/dev/null | wc -l || echo 1)
-echo "=== AQUA v2 Full Sweep ==="
+echo "=== AQUA Full Sweep ==="
 echo "  Datasets : ${DATASETS[*]}"
 echo "  Models   : ${MODELS[*]}"
 echo "  Bits     : ${BITS[*]}"
@@ -109,4 +109,4 @@ else
 fi
 
 echo ""
-echo "=== All ${JOB_IDX} AQUA v2 runs complete ==="
+echo "=== All ${JOB_IDX} AQUA runs complete ==="

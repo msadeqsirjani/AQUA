@@ -33,7 +33,7 @@ from .efficient_qat import (
     E2EQPTrainer,
 )
 
-# AQUA v2: Outlier-Aware Distribution-Guided Mixed-Precision
+# AQUA: Outlier-Aware Distribution-Guided Mixed-Precision
 from .aqua import (
     IntQuantizer as AQUAIntQuantizer,
     FpQuantizer as AQUAFpQuantizer,

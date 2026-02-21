@@ -1,4 +1,4 @@
-# CIFAR10 / VGG16 / AQUA v2 (outlier-aware distribution-guided mixed-precision)
+# CIFAR10 / VGG16 / AQUA (outlier-aware distribution-guided mixed-precision)
 dataset:
   name: cifar10
   data_root: ./data

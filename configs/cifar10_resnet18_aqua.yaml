@@ -1,4 +1,4 @@
-# CIFAR10 / RESNET18 / AQUA v2 (outlier-aware distribution-guided mixed-precision)
+# CIFAR10 / RESNET18 / AQUA (outlier-aware distribution-guided mixed-precision)
 dataset:
   name: cifar10
   data_root: ./data

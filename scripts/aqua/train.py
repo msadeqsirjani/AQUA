@@ -1,5 +1,5 @@
 """
-AQUA v2: Outlier-Aware Distribution-Guided Mixed-Precision Quantization.
+AQUA: Outlier-Aware Distribution-Guided Mixed-Precision Quantization.
 
 Analytical pipeline:
   1. Load FP32 model
@@ -228,7 +228,7 @@ def plot_training_curves(history, save_path):
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
 
-    fig.suptitle("AQUA v2 Fine-Tuning", fontweight="bold")
+    fig.suptitle("AQUA Fine-Tuning", fontweight="bold")
     fig.tight_layout()
     fig.savefig(save_path, dpi=150)
     plt.close(fig)
@@ -376,7 +376,7 @@ def plot_lr_schedule(history, save_path):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="AQUA v2: Outlier-Aware Distribution-Guided Mixed-Precision")
+        description="AQUA: Outlier-Aware Distribution-Guided Mixed-Precision")
     add_common_args(parser)
     parser.add_argument("--allowed-dtypes", type=str, nargs="+", default=None,
                         help="Allowed dtypes (e.g. int8 fp8 int4 fp4 int2)")
@@ -405,7 +405,7 @@ def main():
     args = parser.parse_args()
     cfg = load_config(args.config, args)
 
-    banner("AQUA v2 -- Outlier-Aware Distribution-Guided Mixed-Precision",
+    banner("AQUA -- Outlier-Aware Distribution-Guided Mixed-Precision",
            f"Config: {args.config}")
     device = setup_device()
 
@@ -730,7 +730,7 @@ def main():
             "error_computation_seconds": round(t_errors, 1),
         },
         "summary": {
-            "method": "AQUA_v2",
+            "method": "AQUA",
             "fp32_acc": fp32_acc,
             "method_acc": best_acc,
             "avg_bits": float(final_avg_bits),
@@ -750,7 +750,7 @@ def main():
     torch.save({"model": aqua_model.state_dict()}, ckpt_path)
     file_saved(ckpt_path)
 
-    success("AQUA v2 training complete!")
+    success("AQUA training complete!")
 
 
 if __name__ == "__main__":

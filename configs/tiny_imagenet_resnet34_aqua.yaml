@@ -1,4 +1,4 @@
-# TINY-IMAGENET / RESNET34 / AQUA v2 (outlier-aware distribution-guided mixed-precision)
+# TINY-IMAGENET / RESNET34 / AQUA (outlier-aware distribution-guided mixed-precision)
 dataset:
   name: tiny_imagenet
   data_root: ./data

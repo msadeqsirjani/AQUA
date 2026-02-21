@@ -1,4 +1,4 @@
-# CIFAR100 / VIT_TINY / AQUA v2 (outlier-aware distribution-guided mixed-precision)
+# CIFAR100 / VIT_TINY / AQUA (outlier-aware distribution-guided mixed-precision)
 dataset:
   name: cifar100
   data_root: ./data

@@ -1,4 +1,4 @@
-# TINY-IMAGENET / VIT_TINY / AQUA v2 (outlier-aware distribution-guided mixed-precision)
+# TINY-IMAGENET / VIT_TINY / AQUA (outlier-aware distribution-guided mixed-precision)
 dataset:
   name: tiny_imagenet
   data_root: ./data

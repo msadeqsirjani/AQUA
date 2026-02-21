@@ -1,5 +1,5 @@
 """
-Outlier detection for AQUA v2.
+Outlier detection for AQUA.
 
 Identifies the most sensitive weights per layer using a combined score
 of weight magnitude and Hessian diagonal sensitivity.  Outlier weights

@@ -1,5 +1,5 @@
 """
-AQUA v2 quantized layers — fixed analytical dtype assignment + outlier protection.
+AQUA quantized layers — fixed analytical dtype assignment + outlier protection.
 
 Each ``AQUAConv2d`` / ``AQUALinear`` wraps a standard layer and has:
 

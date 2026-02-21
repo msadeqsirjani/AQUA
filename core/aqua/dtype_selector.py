@@ -1,5 +1,5 @@
 """
-Analytical dtype assignment for AQUA v2.
+Analytical dtype assignment for AQUA.
 
 For each layer, tries every candidate dtype and measures the
 sensitivity-weighted quantization MSE (excluding outlier weights).
